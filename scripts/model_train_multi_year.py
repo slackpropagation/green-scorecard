@@ -18,14 +18,25 @@ year_cols = [col for col in hist.columns if col.isdigit()]
 hist_long = hist.melt(id_vars=["Country", "ISO"], value_vars=year_cols, var_name="year", value_name="co2")
 hist_long["year"] = hist_long["year"].astype(str)
 
+# Compute 3-year rolling standard deviation (volatility)
+hist_long["year_num"] = hist_long["year"].astype(int)
+hist_long = hist_long.sort_values(by=["ISO", "year_num"])
+hist_long["co2_volatility_3yr"] = hist_long.groupby("ISO")["co2"].transform(lambda x: x.rolling(window=3, min_periods=2).std())
+
 # Load dataset
 df = pd.read_csv("data/co2_predictions_with_income.csv")
 
 # Merge current and prior year emissions to compute CO₂ trend
 df["year"] = df["year"].astype(str)
-df = pd.merge(df, hist_long.rename(columns={"co2": "co2_last_year", "year": "prev_year"}), 
-              left_on=["country", "year"], 
-              right_on=["Country", "prev_year"], how="left")
+hist_long = hist_long.rename(columns={"Country": "country", "year": "prev_year", "co2": "co2_last_year"})
+hist_long["prev_year"] = hist_long["prev_year"].astype(str)
+df = pd.merge(
+    df,
+    hist_long[["country", "prev_year", "co2_last_year", "co2_volatility_3yr"]],
+    left_on=["country", "year"],
+    right_on=["country", "prev_year"],
+    how="left"
+)
 df["co2_growth_trend"] = df["co2"] / (df["co2_last_year"] + 1e-6)
 
 # Drop rows with missing values in key columns
@@ -65,7 +76,7 @@ df["region_x_income"] = df["region_code"] * df["income_group_encoded"]
 # Define features and target
 features = [
     "eps_score", "co2_per_capita", "co2_per_gdp", "log_gdp", "log_co2", "log_population",
-    "emissions_per_person", "intensity_ratio", "co2_growth_trend",
+    "emissions_per_person", "intensity_ratio", "co2_growth_trend", "co2_volatility_3yr",
     "income_group_encoded", "income_x_eps", "income_x_gdp", "income_x_intensity",
     "region_x_income"
 ] + region_dummies.columns.tolist()

@@ -26,6 +26,15 @@ hist_long["co2_volatility_3yr"] = hist_long.groupby("ISO")["co2"].transform(lamb
 # Load dataset
 df = pd.read_csv("data/co2_predictions_with_income.csv")
 
+# Calculate policy lag: years since EPS first exceeded 3
+eps_lag = df[df["eps_score"] > 3].groupby("country")["year"].min().reset_index()
+eps_lag.columns = ["country", "first_eps_year"]
+df = pd.merge(df, eps_lag, on="country", how="left")
+df["first_eps_year"] = df["first_eps_year"].astype(float)
+df["year"] = df["year"].astype(float)
+df["policy_lag_years"] = df["year"] - df["first_eps_year"]
+df["policy_lag_years"] = df["policy_lag_years"].clip(lower=0)
+
 # Merge current and prior year emissions to compute CO₂ trend
 df["year"] = df["year"].astype(str)
 hist_long = hist_long.rename(columns={"Country": "country", "year": "prev_year", "co2": "co2_last_year"})
@@ -76,7 +85,7 @@ df["region_x_income"] = df["region_code"] * df["income_group_encoded"]
 # Define features and target
 features = [
     "eps_score", "co2_per_capita", "co2_per_gdp", "log_gdp", "log_co2", "log_population",
-    "emissions_per_person", "intensity_ratio", "co2_growth_trend", "co2_volatility_3yr",
+    "emissions_per_person", "intensity_ratio", "co2_growth_trend", "co2_volatility_3yr", "policy_lag_years",
     "income_group_encoded", "income_x_eps", "income_x_gdp", "income_x_intensity",
     "region_x_income"
 ] + region_dummies.columns.tolist()

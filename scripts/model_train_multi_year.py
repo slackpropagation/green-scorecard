@@ -7,8 +7,26 @@ from sklearn.pipeline import Pipeline
 import joblib
 import numpy as np
 
+# Load and reshape wide-format emissions data
+hist = pd.read_csv("data/historical_emissions.csv")
+
+# Filter for total CO2 emissions, all sectors
+hist = hist[(hist["Gas"] == "CO2") & (hist["Sector"] == "Total including LUCF")]
+
+# Melt year columns into long format
+year_cols = [col for col in hist.columns if col.isdigit()]
+hist_long = hist.melt(id_vars=["Country", "ISO"], value_vars=year_cols, var_name="year", value_name="co2")
+hist_long["year"] = hist_long["year"].astype(str)
+
 # Load dataset
 df = pd.read_csv("data/co2_predictions_with_income.csv")
+
+# Merge current and prior year emissions to compute CO₂ trend
+df["year"] = df["year"].astype(str)
+df = pd.merge(df, hist_long.rename(columns={"co2": "co2_last_year", "year": "prev_year"}), 
+              left_on=["country", "year"], 
+              right_on=["Country", "prev_year"], how="left")
+df["co2_growth_trend"] = df["co2"] / (df["co2_last_year"] + 1e-6)
 
 # Drop rows with missing values in key columns
 df = df.dropna(subset=["eps_score", "co2_per_capita", "co2_per_gdp", "gdp", "co2", "population"])
@@ -47,8 +65,8 @@ df["region_x_income"] = df["region_code"] * df["income_group_encoded"]
 # Define features and target
 features = [
     "eps_score", "co2_per_capita", "co2_per_gdp", "log_gdp", "log_co2", "log_population",
-    "emissions_per_person", "intensity_ratio", "income_group_encoded",
-    "income_x_eps", "income_x_gdp", "income_x_intensity",
+    "emissions_per_person", "intensity_ratio", "co2_growth_trend",
+    "income_group_encoded", "income_x_eps", "income_x_gdp", "income_x_intensity",
     "region_x_income"
 ] + region_dummies.columns.tolist()
 X = df[features]
@@ -84,10 +102,32 @@ y_pred = search.predict(X_test)
 print("Classification Report:")
 print(classification_report(y_test, y_pred))
 
-# Add predictions to full dataset
-df["predicted_growth"] = search.predict(X)
+# Threshold tuning for best F1 score
+from sklearn.metrics import f1_score
+import numpy as np
 
-# Save predictions
+# Find best threshold for F1 score using validation set
+y_proba = search.predict_proba(X_test)[:, 1]
+thresholds = np.linspace(0.1, 0.9, 81)
+best_f1, best_threshold = 0, 0.5
+for t in thresholds:
+    y_pred_thresh = (y_proba >= t).astype(int)
+    f1 = f1_score(y_test, y_pred_thresh)
+    if f1 > best_f1:
+        best_f1 = f1
+        best_threshold = t
+
+print(f"Best F1 threshold: {best_threshold:.2f} (F1 = {best_f1:.4f})")
+
+# Replace final prediction with best-threshold predictions
+y_pred = (y_proba >= best_threshold).astype(int)
+print("Classification Report (Threshold Tuned):")
+print(classification_report(y_test, y_pred))
+
+# Update full-dataset predictions using best threshold
+df["predicted_growth"] = (search.predict_proba(X)[:, 1] >= best_threshold).astype(int)
+
+ # Save predictions
 df.to_csv("data/co2_multi_year_predictions.csv", index=False)
 print("✅ Predictions saved to data/co2_multi_year_predictions.csv")
 

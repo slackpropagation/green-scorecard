@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
-from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
 from sklearn.metrics import classification_report
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
@@ -28,15 +28,15 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 # Build pipeline with scaling
 pipe = Pipeline([
     ("scaler", StandardScaler()),
-    ("model", RandomForestClassifier(random_state=42, class_weight="balanced"))
+    ("model", XGBClassifier(random_state=42, scale_pos_weight=1, use_label_encoder=False, eval_metric="logloss"))
 ])
 
 # Random search for hyperparameter tuning
 param_grid = {
     "model__n_estimators": [100, 200, 300],
-    "model__max_depth": [None, 5, 10],
-    "model__min_samples_split": [2, 5, 10],
-    "model__min_samples_leaf": [1, 2, 4]
+    "model__max_depth": [3, 5, 7],
+    "model__learning_rate": [0.01, 0.1, 0.2],
+    "model__subsample": [0.8, 1.0],
 }
 
 search = RandomizedSearchCV(pipe, param_grid, n_iter=10, cv=3, scoring="accuracy", random_state=42)

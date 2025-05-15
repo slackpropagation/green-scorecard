@@ -8,21 +8,19 @@
 
 ## Project Overview
 
-**Green Scorecard** is an interactive ESG (Environmental, Social, Governance) analytics dashboard that helps companies track their sustainability progress and proactively identify compliance risks.
+**Green Scorecard** is a CO₂ emissions dashboard that helps companies track their environmental footprint, compare site-level emissions to real-world benchmarks, and predict which facilities are at risk of missing their reduction targets.
 
-With new ESG regulations rapidly emerging, many organizations struggle to keep up. This project simulates internal ESG metrics—like emissions, board diversity, and energy efficiency—and visualizes progress against industry benchmarks. It also features a predictive risk model that flags potential non-compliance before it happens.
-
-> Think of it as a real-time ESG cockpit—part analytics hub, part early warning system.
+This project uses real EPA FLIGHT data for benchmarking, simulates internal emissions across company sites, and applies machine learning to forecast compliance risk. It also includes a scenario simulator to visualize the impact of changes like increased output or renewable energy adoption.
 
 ---
 
 ## Key Features (Planned)
 
-- ✅ Simulated internal ESG metrics (CO₂ emissions, board composition, electricity usage, etc.)
-- 📊 Interactive ESG scorecard by category (Environment, Social, Governance)
-- ⚠️ Predictive “at-risk” flags using decision trees or logistic regression
-- 🔄 Scenario tool: test what happens if metrics change (e.g., energy efficiency drops 5%)
-- 📈 Visual storytelling to highlight risk areas, progress, and priorities
+- ✅ Simulated internal CO₂ emissions data (scope 1, output, intensity)
+- 📊 Benchmark comparison using EPA FLIGHT dataset
+- ⚠️ Predictive risk model (logistic regression, decision tree) for next-quarter non-compliance
+- 🔄 Scenario simulator: test impact of emissions changes, energy upgrades, or production shifts
+- 📈 Visual dashboard with site-level trends, risk flags, and intensity benchmarks
 
 ---
 
@@ -36,16 +34,18 @@ With new ESG regulations rapidly emerging, many organizations struggle to keep u
 
 ## Tech Stack (Planned)
 
-- **Python**, **Pandas**, **Scikit-learn** – data simulation and predictive modeling  
-- **Plotly**, **Streamlit** – interactive data visualizations and UI  
-- **YAML/JSON** – configurable ESG benchmarks  
-- **Docker (optional)** – for reproducible deployment  
+- **Python**, **Pandas**, **Scikit-learn** – data simulation, modeling, and analysis  
+- **Plotly**, **Streamlit** – dynamic dashboards and visualizations  
+- **EPA FLIGHT dataset** – real-world benchmarking data  
+- **YAML/CSV** – configuration and data inputs  
+- **Docker (optional)** – reproducible development environment  
 
 ---
 
 ## Status
 
-🚧 **Active Development** – This is the initial commit. Dashboard layout, data simulation scripts, and ML risk modeling pipeline are currently being scaffolded.
+🚧 **Active Development** – This is the initial commit. Dashboard layout, data simulation scripts, and ML risk modeling pipeline are currently being scaffolded.  
+The MVP will focus on CO₂ emissions tracking and forecasting before expanding to other ESG pillars.
 
 ---
 

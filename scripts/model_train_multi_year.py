@@ -26,12 +26,15 @@ hist_long["co2_volatility_3yr"] = hist_long.groupby("ISO")["co2"].transform(lamb
 # Load dataset
 df = pd.read_csv("data/co2_predictions_with_income.csv")
 
+df["year"] = df["year"].astype(int)
+test_year = df["year"].max()
+print(f"Cross-year validation: training on < {test_year}, testing on {test_year}")
+
 # Calculate policy lag: years since EPS first exceeded 3
 eps_lag = df[df["eps_score"] > 3].groupby("country")["year"].min().reset_index()
 eps_lag.columns = ["country", "first_eps_year"]
 df = pd.merge(df, eps_lag, on="country", how="left")
-df["first_eps_year"] = df["first_eps_year"].astype(float)
-df["year"] = df["year"].astype(float)
+df["first_eps_year"] = df["first_eps_year"].round()
 df["policy_lag_years"] = df["year"] - df["first_eps_year"]
 df["policy_lag_years"] = df["policy_lag_years"].clip(lower=0)
 
@@ -82,6 +85,9 @@ df["region_code"] = df["region"].map(region_codes)
 # Region × income interaction
 df["region_x_income"] = df["region_code"] * df["income_group_encoded"]
 
+train_df = df[df["year"] < str(test_year)].copy()
+test_df = df[df["year"] == str(test_year)].copy()
+
 # Define features and target
 features = [
     "eps_score", "co2_per_capita", "log_gdp", "log_co2", "log_population",
@@ -97,8 +103,11 @@ neg, pos = np.bincount(y)
 scale_pos_weight = neg / pos
 print(f"Using scale_pos_weight: {scale_pos_weight:.2f}")
 
-# Train/test split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Cross-year train/test split
+X_train = train_df[features]
+y_train = train_df["next_year_growth"]
+X_test = test_df[features]
+y_test = test_df["next_year_growth"]
 
 # Build pipeline with scaling
 pipe = Pipeline([

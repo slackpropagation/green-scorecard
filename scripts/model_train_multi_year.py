@@ -7,6 +7,9 @@ from sklearn.pipeline import Pipeline
 import joblib
 import numpy as np
 
+# Configurable test year for stress testing
+TEST_YEAR = 2021  # Change this for stress testing other years
+
 # Load and reshape wide-format emissions data
 hist = pd.read_csv("data/historical_emissions.csv")
 
@@ -27,7 +30,7 @@ hist_long["co2_volatility_3yr"] = hist_long.groupby("ISO")["co2"].transform(lamb
 df = pd.read_csv("data/co2_predictions_with_income.csv")
 
 df["year"] = df["year"].astype(int)
-test_year = df["year"].max()
+test_year = TEST_YEAR
 print(f"Cross-year validation: training on < {test_year}, testing on {test_year}")
 
 # Calculate policy lag: years since EPS first exceeded 3
@@ -79,8 +82,12 @@ region_dummies = pd.get_dummies(df["region"], prefix="region")
 df = pd.concat([df, region_dummies], axis=1)
 
 # Encode region as numeric to create interaction
+
 region_codes = {region: i for i, region in enumerate(df["region"].dropna().unique())}
 df["region_code"] = df["region"].map(region_codes)
+
+# Encode year as a numeric feature
+df["year_encoded"] = df["year"].astype(int)
 
 # Region × income interaction
 df["region_x_income"] = df["region_code"] * df["income_group_encoded"]
@@ -93,7 +100,7 @@ features = [
     "eps_score", "co2_per_capita", "log_gdp", "log_co2", "log_population",
     "emissions_per_person", "co2_growth_trend", "co2_volatility_3yr", "policy_lag_years",
     "income_group_encoded", "income_x_eps", "income_x_intensity",
-    "region_x_income"
+    "region_x_income", "year_encoded"
 ] + [col for col in region_dummies.columns if col != "region_Sub-Saharan Africa"]
 X = df[features]
 y = df["next_year_growth"]

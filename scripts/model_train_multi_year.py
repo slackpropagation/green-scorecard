@@ -84,11 +84,11 @@ df["region_x_income"] = df["region_code"] * df["income_group_encoded"]
 
 # Define features and target
 features = [
-    "eps_score", "co2_per_capita", "co2_per_gdp", "log_gdp", "log_co2", "log_population",
-    "emissions_per_person", "intensity_ratio", "co2_growth_trend", "co2_volatility_3yr", "policy_lag_years",
-    "income_group_encoded", "income_x_eps", "income_x_gdp", "income_x_intensity",
+    "eps_score", "co2_per_capita", "log_gdp", "log_co2", "log_population",
+    "emissions_per_person", "co2_growth_trend", "co2_volatility_3yr", "policy_lag_years",
+    "income_group_encoded", "income_x_eps", "income_x_intensity",
     "region_x_income"
-] + region_dummies.columns.tolist()
+] + [col for col in region_dummies.columns if col != "region_Sub-Saharan Africa"]
 X = df[features]
 y = df["next_year_growth"]
 

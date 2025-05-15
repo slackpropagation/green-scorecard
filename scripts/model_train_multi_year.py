@@ -8,7 +8,7 @@ import joblib
 import numpy as np
 
 # Configurable test year for stress testing
-TEST_YEAR = 2021  # Change this for stress testing other years
+FORECAST_MODE = False  # Set to True to forecast next year based on latest year
 
 # Load and reshape wide-format emissions data
 hist = pd.read_csv("data/historical_emissions.csv")
@@ -30,8 +30,18 @@ hist_long["co2_volatility_3yr"] = hist_long.groupby("ISO")["co2"].transform(lamb
 df = pd.read_csv("data/co2_predictions_with_income.csv")
 
 df["year"] = df["year"].astype(int)
-test_year = TEST_YEAR
-print(f"Cross-year validation: training on < {test_year}, testing on {test_year}")
+if FORECAST_MODE:
+    test_year = df["year"].astype(int).max()
+    print(f"Forecast mode: training on <= {test_year}, predicting for {test_year}")
+    train_df = df[df["year"].astype(int) <= test_year].copy()
+    test_df = df[df["year"].astype(int) == test_year].copy()
+    forecast_only = True
+else:
+    test_year = df["year"].astype(int).max()
+    print(f"Cross-year validation: training on < {test_year}, testing on {test_year}")
+    train_df = df[df["year"].astype(int) < test_year].copy()
+    test_df = df[df["year"].astype(int) == test_year].copy()
+    forecast_only = False
 
 # Calculate policy lag: years since EPS first exceeded 3
 eps_lag = df[df["eps_score"] > 3].groupby("country")["year"].min().reset_index()
@@ -95,13 +105,17 @@ df["region_x_income"] = df["region_code"] * df["income_group_encoded"]
 train_df = df[df["year"] < str(test_year)].copy()
 test_df = df[df["year"] == str(test_year)].copy()
 
-# Define features and target
+ # Best-of-the-Best Feature Set: Policy + Emissions + Macro + Temporal
 features = [
-    "eps_score", "co2_per_capita", "log_gdp", "log_co2", "log_population",
-    "emissions_per_person", "co2_growth_trend", "co2_volatility_3yr", "policy_lag_years",
-    "income_group_encoded", "income_x_eps", "income_x_intensity",
-    "region_x_income", "year_encoded"
-] + [col for col in region_dummies.columns if col != "region_Sub-Saharan Africa"]
+    "eps_score",
+    "policy_lag_years",
+    "co2_per_capita",
+    "emissions_per_person",
+    "region_x_income",
+    "log_gdp",
+    "log_population",
+    "year_encoded"
+]
 X = df[features]
 y = df["next_year_growth"]
 
@@ -133,10 +147,6 @@ param_grid = {
 search = RandomizedSearchCV(pipe, param_grid, n_iter=10, cv=3, scoring="accuracy", random_state=42)
 search.fit(X_train, y_train)
 
-# Evaluate
-y_pred = search.predict(X_test)
-print("Classification Report:")
-print(classification_report(y_test, y_pred))
 
 # Threshold tuning for best F1 score
 from sklearn.metrics import f1_score
@@ -157,8 +167,9 @@ print(f"Best F1 threshold: {best_threshold:.2f} (F1 = {best_f1:.4f})")
 
 # Replace final prediction with best-threshold predictions
 y_pred = (y_proba >= best_threshold).astype(int)
-print("Classification Report (Threshold Tuned):")
-print(classification_report(y_test, y_pred))
+if not forecast_only:
+    print("Classification Report (Threshold Tuned):")
+    print(classification_report(y_test, y_pred))
 
 # Update full-dataset predictions using best threshold
 df["predicted_growth"] = (search.predict_proba(X)[:, 1] >= best_threshold).astype(int)

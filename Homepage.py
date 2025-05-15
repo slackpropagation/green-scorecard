@@ -7,7 +7,7 @@ st.set_page_config(page_title="Green Scorecard", layout="wide")
 st.title("🌱 Green Scorecard – CO₂ Emissions Dashboard")
 
 # Load data
-df = pd.read_csv("data/simulated_sites.csv")
+df = pd.read_csv("data/simulated_sites_enriched.csv")
 
 # Sidebar filters
 sites = df["site_id"].unique()
@@ -53,3 +53,17 @@ fig2 = px.bar(
     height=500
 )
 st.plotly_chart(fig2, use_container_width=True)
+
+# Emissions by policy pressure level
+pressure_summary = filtered.groupby("pressure_level")["scope_1_emissions"].sum().reset_index()
+
+fig3 = px.bar(
+    pressure_summary,
+    x="pressure_level",
+    y="scope_1_emissions",
+    color="pressure_level",
+    title="Total Scope 1 Emissions by Policy Pressure Level",
+    labels={"scope_1_emissions": "Tons CO₂", "pressure_level": "Policy Pressure"},
+    height=500
+)
+st.plotly_chart(fig3, use_container_width=True)

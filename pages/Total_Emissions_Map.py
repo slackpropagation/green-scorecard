@@ -2,69 +2,39 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-st.set_page_config(page_title="⚠️ Risk by Policy Pressure", layout="wide")
+st.set_page_config(page_title="🌍 Total Emissions by Country", layout="wide")
 
-st.markdown("## ⚠️ Are We at Risk of Falling Behind?")
+st.markdown("## 🌍 Where Are the Emissions Coming From?")
 st.markdown(
     """
-This chart shows how site compliance risk varies by the policy pressure level of the countries they operate in.
-It helps identify whether stricter policy environments lead to better emissions target performance.
+This map shows the most recent total CO₂ emissions by country, using data from Our World in Data.
+Countries are shaded by the scale of their emissions, and contextual policy pressure is available on hover.
 """
 )
 
+# Load real emissions + policy data
+df = pd.read_csv("data/co2_policy_merged.csv")
 
-# Load data
-df = pd.read_csv("data/simulated_sites_enriched.csv")
-
-# Calculate risk flag
-def classify_risk(row):
-    delta = row["scope_1_emissions"] - row["target_emissions"]
-    if delta > row["target_emissions"] * 0.10:
-        return "non_compliant"
-    elif delta > 0:
-        return "at_risk"
-    else:
-        return "on_track"
-
-df["risk_flag"] = df.apply(classify_risk, axis=1)
-
-# Count sites by country and risk_flag
-site_risks = df.groupby(["country", "risk_flag"])["site_id"].nunique().reset_index()
-
-# Total sites per country
-total_sites = df.groupby("country")["site_id"].nunique().reset_index(name="total_sites")
-
-# Non-compliant sites per country
-non_compliant = site_risks[site_risks["risk_flag"] == "non_compliant"].rename(columns={"site_id": "non_compliant_sites"})
-
-# Merge and calculate %
-merged = pd.merge(total_sites, non_compliant[["country", "non_compliant_sites"]], on="country", how="left")
-merged["non_compliant_sites"] = merged["non_compliant_sites"].fillna(0)
-merged["non_compliant_rate"] = merged["non_compliant_sites"] / merged["total_sites"] * 100
-
-# Add EPS score and pressure
-merged = pd.merge(merged, df[["country", "eps_score", "pressure_level"]].drop_duplicates(), on="country", how="left")
-
-# Fix country name for Plotly compatibility
-merged["country"] = merged["country"].replace({
+# Fix country names for Plotly compatibility
+df["country"] = df["country"].replace({
     "South Korea": "Korea, Rep."
-    
 })
-# Map
+
+# Build choropleth map
 fig = px.choropleth(
-    merged,
+    df,
     locations="country",
     locationmode="country names",
-    color="non_compliant_rate",
+    color="co2",
     hover_name="country",
-    hover_data=["non_compliant_sites", "total_sites", "pressure_level", "eps_score"],
+    hover_data=["year", "co2_per_capita", "eps_score", "pressure_level"],
     color_continuous_scale="Reds",
-    title="Non-Compliant Site Rate by Country"
+    title="Total CO₂ Emissions by Country (Most Recent Year)"
 )
 
 fig.update_layout(
     margin=dict(l=0, r=0, t=60, b=0),
-    coloraxis_colorbar=dict(title="% Non-Compliant")
+    coloraxis_colorbar=dict(title="Total CO₂ (million tons)")
 )
 
 st.plotly_chart(fig, use_container_width=True)

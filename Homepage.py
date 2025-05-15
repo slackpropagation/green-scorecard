@@ -7,7 +7,7 @@ st.set_page_config(page_title="Green Scorecard", layout="wide")
 st.title("🌱 Green Scorecard – CO₂ Emissions Dashboard")
 
 # Load data
-df = pd.read_csv("data/simulated_sites_enriched.csv")
+df = pd.read_csv("data/processed/co2_multi_year_predictions.csv")
 
 # Sidebar filters
 sites = df["site_id"].unique()

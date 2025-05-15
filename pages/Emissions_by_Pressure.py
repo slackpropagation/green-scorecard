@@ -1,5 +1,3 @@
-
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -13,7 +11,7 @@ and shows the total CO₂ emissions for each group. It helps visualize whether p
 """)
 
 # Load data
-df = pd.read_csv("data/co2_policy_merged.csv")
+df = pd.read_csv("data/processed/co2_multi_year_predictions.csv")
 
 # Filter out missing pressure levels
 df = df[df["pressure_level"].notna()]

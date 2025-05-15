@@ -11,7 +11,7 @@ Use this chart to examine whether countries with stricter climate policies tend 
 """)
 
 # Load data
-df = pd.read_csv("data/co2_policy_merged.csv")
+df = pd.read_csv("data/processed/co2_policy_merged.csv")
 
 # Fix names for compatibility
 df["country"] = df["country"].replace({"South Korea": "Korea, Rep."})

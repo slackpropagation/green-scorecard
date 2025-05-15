@@ -5,11 +5,11 @@ import plotly.graph_objects as go
 
 st.set_page_config(page_title="Total Emissions by Country", layout="wide")
 
-st.markdown("## Where Are the Emissions Coming From?")
+st.markdown("## Where Are the Emissions Coming From — and How Fairly?")
 st.markdown(
     """
-This map shows the most recent total CO₂ emissions by country, using data from Our World in Data.
-Countries are shaded by the scale of their emissions, and contextual policy pressure is available on hover.
+This page includes two maps to highlight both total CO₂ emissions and emissions per capita.  
+The first map shows the top emitters in absolute terms; the second adjusts for population size to reveal who emits most on a per-person basis.
 """
 )
 

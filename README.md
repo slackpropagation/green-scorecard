@@ -298,8 +298,6 @@ Harnessing advanced machine learning techniques, this visualization forecasts fu
 
 ## Example Use Cases
 
-## Example Use Cases
-
 ### Regulatory Risk Monitoring
 Use the Green Scorecard dashboard to continuously monitor emissions and compliance risks across all operational sites, countries, and regions in your portfolio. The ML-driven risk scores identify entities most likely to exceed emissions targets before actual breaches occur. This early warning system enables compliance officers and sustainability teams to:
 - Prioritize audits and inspections based on predicted risk levels.

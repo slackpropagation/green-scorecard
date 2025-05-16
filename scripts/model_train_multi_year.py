@@ -11,7 +11,7 @@ import numpy as np
 FORECAST_MODE = False  # Set to True to forecast next year based on latest year
 
 # Load and reshape wide-format emissions data
-hist = pd.read_csv("data/historical_emissions.csv")
+hist = pd.read_csv("data/processed/historical_emissions.csv")
 
 # Filter for total CO2 emissions, all sectors
 hist = hist[(hist["Gas"] == "CO2") & (hist["Sector"] == "Total including LUCF")]
@@ -27,7 +27,7 @@ hist_long = hist_long.sort_values(by=["ISO", "year_num"])
 hist_long["co2_volatility_3yr"] = hist_long.groupby("ISO")["co2"].transform(lambda x: x.rolling(window=3, min_periods=2).std())
 
 # Load dataset
-df = pd.read_csv("data/co2_predictions_with_income.csv")
+df = pd.read_csv("data/processed/co2_predictions_with_income.csv")
 
 df["year"] = df["year"].astype(int)
 if FORECAST_MODE:
@@ -84,7 +84,7 @@ df["income_x_gdp"] = df["income_group_encoded"] * df["gdp"]
 df["income_x_intensity"] = df["income_group_encoded"] * df["intensity_ratio"]
 
 # Load region mapping file
-region_df = pd.read_csv("data/country_regions.csv")  # expects columns: iso_code, region
+region_df = pd.read_csv("data/processed/country_regions.csv")  # expects columns: iso_code, region
 df = pd.merge(df, region_df, on="iso_code", how="left")
 
 # One-hot encode region

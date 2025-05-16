@@ -4,8 +4,6 @@
 
 **Last Updated:** May 15, 2025
 
----
-
 ## Table of Contents
 
 - [A Story of Impact](#a-story-of-impact)
@@ -22,15 +20,11 @@
 - [Folder Structure](#folder-structure)
 - [License](#license)
 
----
-
 ## A Story of Impact
 
 > *Imagine you’re a sustainability leader, a policymaker, or an investor. You know climate change is urgent, but the data is overwhelming and fragmented. Which regions or sites should you focus on? Where are emissions rising fastest, and what’s driving those changes? How can you prove progress—and spot trouble—before it’s too late?*
 >
 > The **Green Scorecard** dashboard is your answer. It weaves together emissions, policy, and economic data, using advanced machine learning to turn complexity into clarity. With interactive visuals and clear risk signals, you can see not just what’s happening, but why—and what to do next.
-
----
 
 ## Who This Dashboard Empowers
 
@@ -38,8 +32,6 @@
 - **Regulators & Policymakers:** Identify compliance gaps, assess policy effectiveness, and target interventions.
 - **Investors & Boards:** Track ESG risk, verify progress, and support transparent climate disclosures.
 - **Site Managers & Operations:** Understand local targets, risks, and opportunities for rapid improvement.
-
----
 
 ## Setup & Requirements
 
@@ -62,8 +54,6 @@ pip install -r requirements.txt
 streamlit run dashboard/streamlit_app.py
 ```
 
----
-
 ## Data Sources
 
 - **Historical CO₂ Emissions:**  
@@ -74,8 +64,6 @@ streamlit run dashboard/streamlit_app.py
   Custom emissions reduction goals by operational site or region
 - **Economic & Demographic Context:**  
   GDP, population, income group, region mapping, and related drivers
-
----
 
 ## How the ML Model Works
 
@@ -95,15 +83,11 @@ The dashboard’s forecasts are powered by a **gradient-boosted regression tree 
 
 This approach delivers **reliable, explainable forecasts**—so you can act with confidence, not just react to surprises.
 
----
-
 ## Why It Matters
 
 - **Tighter Regulations:** Non-compliance means reputational and financial risk.
 - **Transparency Demanded:** Investors and the public want credible, data-driven ESG progress.
 - **Proactive Action:** Predictive analytics highlight where to intervene—before targets are breached.
-
----
 
 ## Exploring the Dashboard
 
@@ -116,8 +100,6 @@ The live Green Scorecard dashboard lets you:
 **Example:**
 
 ![Screenshot - Country filter and risk map](outputs/Dashboard_Screenshot_1.png)
-
----
 
 ## Key Visualizations & Insights
 
@@ -141,8 +123,6 @@ Two side-by-side maps reveal both the *scale* and *equity* of emissions:
 
 **Together, these maps help you weigh both absolute and relative responsibility—crucial for fair climate strategies.**
 
----
-
 ### 2. Are High-Pressure Countries Emitting More or Less?
 
 #### **CO₂ Emissions by Policy Pressure (Violin Plot)**
@@ -154,8 +134,6 @@ Two side-by-side maps reveal both the *scale* and *equity* of emissions:
 
 **This chart empowers more targeted, equitable climate action.**
 
----
-
 ### 3. Emissions Growth Risk by Country
 
 Countries are color-coded by recent emissions growth:
@@ -166,8 +144,6 @@ Countries are color-coded by recent emissions growth:
 **Key use:** Instantly scan for problem areas and track global progress.
 
 ![Emissions Growth Risk](outputs/Emissions_Growth_Risk.png)
-
----
 
 ### 4. How Stringent Are National Climate Policies?
 
@@ -181,8 +157,6 @@ Countries are color-coded by recent emissions growth:
 - **Shows:** Relationship between policy strictness and actual emission rates.
 - **Use:** Spot policy–performance mismatches and best-practice leaders.
 
----
-
 ### 5. Where Are Emissions Likely to Grow Next?
 
 **ML-powered forecast:**  
@@ -193,8 +167,6 @@ An interactive map highlights where emissions are expected to rise next year.
 **Use:** Prioritize preemptive action and resource allocation.
 
 ![Predicted Emissions Growth](outputs/Predicted_Emissions_Growth.png)
-
----
 
 ## Strategic Takeaways
 
@@ -210,8 +182,6 @@ An interactive map highlights where emissions are expected to rise next year.
 - Tighten policy where risk is highest.
 - Launch rapid-response decarbonization in “At Risk”/“Non-compliant” sites flagged by the model.
 - Study and replicate drivers of compliance and emissions reduction across your portfolio.
-
----
 
 ## Example Use Cases
 
@@ -230,8 +200,6 @@ Export annotated graphs and risk tables for credible, data-driven disclosures.
 ### Benchmarking & Best Practice Replication
 Use feature importance and performance charts to identify and spread what works.
 
----
-
 ## Next Steps & Recommendations
 
 - **Quick Win:** Immediately engage “At Risk”/“Non-compliant” regions with targeted outreach and policy review.
@@ -239,8 +207,6 @@ Use feature importance and performance charts to identify and spread what works.
 - **Dashboard Expansion:** Roll out to more teams; train users to interpret and act on the insights.
 - **Integrate Real-Time Data:** Move toward live monitoring and continuous ML retraining.
 - **Scenario Planning:** Use “what-if” simulations to stress-test strategies and refine interventions.
-
----
 
 ## Folder Structure
 
@@ -266,21 +232,15 @@ green-scorecard/
 └── requirements.txt
 ```
 
----
-
 ## License
 
 This project is licensed under the MIT License.  
 You are free to use, modify, and distribute it with attribution.  
 See the [LICENSE](LICENSE) file for full terms.
 
----
-
 ## Contributing & Contact
 
 Contributions and feedback are welcome. Please open an issue or submit a pull request on GitHub.
-
----
 
 ## Changelog
 

@@ -36,7 +36,7 @@ df["country"] = df["country"].replace({
 })
 
 # ---- Map 1: Total CO₂ ----
-st.markdown("### CO₂ Emissions Per Capita vs EPS Score")
+st.markdown("### Environmental Policy Stringency (EPS) Score by Country")
 
 # Total CO₂ Map using go.Figure
 fig_total = go.Figure(go.Choropleth(

@@ -6,8 +6,9 @@ st.set_page_config(page_title="Emissions by Policy Pressure Level", layout="wide
 
 st.markdown("## Are High-Pressure Countries Emitting More or Less?")
 st.markdown("""
-This bar chart groups countries by their environmental policy pressure level (Low, Medium, High)
-and shows the total CO₂ emissions for each group. It helps visualize whether policy strictness aligns with emissions outcomes.
+This page explores whether countries with stricter environmental policy pressure actually achieve lower emissions. 
+The violin plot below shows the distribution of country-level CO₂ emissions across policy pressure levels (Low, Medium, High), 
+helping visualize if and how policy strictness aligns with real-world emissions outcomes.
 """)
 
 # Load data

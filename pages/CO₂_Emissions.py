@@ -88,7 +88,7 @@ fig_total.add_annotation(
     font=dict(size=28, color="#e65100", family="Helvetica Neue Bold")
 )
 fig_total.add_annotation(
-    text="Total CO₂ (million tons)",
+    text="Total CO₂ (metric tons)",
     textangle=-90, xref="paper", yref="paper",
     x=0.00, y=0.5,
     showarrow=False,

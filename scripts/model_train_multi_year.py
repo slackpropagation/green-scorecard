@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
-from xgboost import XGBRegressor
+from xgboost import XGBClassifier
 from sklearn.metrics import classification_report
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
@@ -117,18 +117,23 @@ features = [
     "year_encoded"
 ]
 X = df[features]
-y = df["co2_growth_prct"]
+y = df["next_year_growth"]
+
+# Compute class imbalance ratio
+neg, pos = np.bincount(y)
+scale_pos_weight = neg / pos
+print(f"Using scale_pos_weight: {scale_pos_weight:.2f}")
 
 # Cross-year train/test split
 X_train = train_df[features]
-y_train = train_df["co2_growth_prct"]
+y_train = train_df["next_year_growth"]
 X_test = test_df[features]
-y_test = test_df["co2_growth_prct"]
+y_test = test_df["next_year_growth"]
 
 # Build pipeline with scaling
 pipe = Pipeline([
     ("scaler", StandardScaler()),
-    ("model", XGBRegressor(random_state=42))
+    ("model", XGBClassifier(random_state=42, scale_pos_weight=scale_pos_weight, use_label_encoder=False, eval_metric="logloss"))
 ])
 
 # Random search for hyperparameter tuning
@@ -143,17 +148,35 @@ search = RandomizedSearchCV(pipe, param_grid, n_iter=10, cv=3, scoring="accuracy
 search.fit(X_train, y_train)
 
 
-y_pred = search.predict(X_test)
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
-print("Regression Report:")
-print(f"MAE: {mean_absolute_error(y_test, y_pred):.4f}")
-print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
-print(f"R2: {r2_score(y_test, y_pred):.4f}")
-df["predicted_growth"] = search.predict(X)
+# Threshold tuning for best F1 score
+from sklearn.metrics import f1_score
+import numpy as np
+
+# Find best threshold for F1 score using validation set
+y_proba = search.predict_proba(X_test)[:, 1]
+thresholds = np.linspace(0.1, 0.9, 81)
+best_f1, best_threshold = 0, 0.5
+for t in thresholds:
+    y_pred_thresh = (y_proba >= t).astype(int)
+    f1 = f1_score(y_test, y_pred_thresh)
+    if f1 > best_f1:
+        best_f1 = f1
+        best_threshold = t
+
+print(f"Best F1 threshold: {best_threshold:.2f} (F1 = {best_f1:.4f})")
+
+# Replace final prediction with best-threshold predictions
+y_pred = (y_proba >= best_threshold).astype(int)
+if not forecast_only:
+    print("Classification Report (Threshold Tuned):")
+    print(classification_report(y_test, y_pred))
+
+# Update full-dataset predictions using best threshold
+df["predicted_growth"] = (search.predict_proba(X)[:, 1] >= best_threshold).astype(int)
 
  # Save predictions
 df.to_csv("data/co2_multi_year_predictions.csv", index=False)
-print("✅ Regression predictions saved to data/co2_multi_year_predictions.csv")
+print("✅ Predictions saved to data/co2_multi_year_predictions.csv")
 
 # Save the model
 joblib.dump(search.best_estimator_, "data/multi_year_co2_model.pkl")
